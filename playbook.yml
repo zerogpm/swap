@@ -1,0 +1,45 @@
+---
+
+- hosts: all
+
+
+  tasks:
+
+    - name: create swap space
+      become: yes
+      command: dd if=/dev/zero of=/swapfile count=16384 bs=1M
+
+    - name: set permissions on swap file
+      become: yes
+      file:
+        path: /swapfile
+        mode: 0600
+
+    - name: format swap file
+      become: yes
+      command: mkswap /swapfile
+
+    - name: turn on swap
+      become: yes
+      command: swapon /swapfile
+
+    - name: add to fstab
+      become: yes
+      lineinfile:
+        dest: /etc/fstab
+        regexp: /swapfile
+        line: /swapfile none swap sw 0 0
+
+    - name: set swapiness
+      become: yes
+      sysctl:
+        name: vm.swappiness
+        value: "10"
+
+    - name: add to sysctl.conf
+      become: yes
+      lineinfile:
+        dest: /etc/sysctl.conf
+        regexp: vm.swappiness
+        line: vm.swappiness = 10
+      tags: test
