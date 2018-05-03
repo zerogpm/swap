@@ -1,0 +1,1 @@
+This is a SWAP file config for Linux
